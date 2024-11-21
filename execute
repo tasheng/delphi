@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import os
+import glob as glob
+
+os.system('mkdir -p log/')
+os.system('mkdir -p err/')
+os.system('mkdir -p bin/')
+os.system('g++ `root-config --glibs --cflags` -o bin/convert.exe convert.C')
+
+PDLINPUT_txt = '''
+*
+* PDLINPUT file for DES multievt request
+*
+FILE = {}
+*
+'''
+
+for al in glob.glob('/eos/cms/store/group/phys_heavyions/yjlee/delphiData/1998/*.al'):
+	f = open('PDLINPUT', 'w')
+	f.write(PDLINPUT_txt.format(al))
+	os.system('cat PDLINPUT')
+	os.system('bash dump.sh')
+	basename=os.path.basename(al.strip('.al'))
+	os.system('mv dump.log log/dump.{}.log'.format(basename))
+	os.system('mv dump.err err/dump.{}.err'.format(basename))
+	os.system('bin/convert.exe log/dump.{}.log out/{}.root'.format(basename,basename))
