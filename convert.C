@@ -25,7 +25,7 @@ void convert(const char* inputFileName, const char* outputFileName) {
     // Variables for event information and particle data
     int eventNumber = 0;
     int nTracks = 0;
-    std::vector<float> charge, px, py, pz, e, emf, hpc, hac, stic;
+    std::vector<float> charge, px, py, pz, e, emf, hpc, hac, stic, lock;
 
     // Create branches
     tree.Branch("EventNumber", &eventNumber, "EventNumber/I");
@@ -39,6 +39,7 @@ void convert(const char* inputFileName, const char* outputFileName) {
     tree.Branch("HPC", &hpc);
     tree.Branch("HAC", &hac);
     tree.Branch("STIC", &stic);
+    tree.Branch("LOCK", &lock);
 
     // Process the log file
     std::string line;
@@ -62,6 +63,7 @@ void convert(const char* inputFileName, const char* outputFileName) {
             hpc.clear();
             hac.clear();
             stic.clear();
+            lock.clear();
         } else if (line.find("CHECK: TRACKS") != std::string::npos) {
             // Extract the number of tracks
             std::istringstream iss(line);
@@ -70,11 +72,11 @@ void convert(const char* inputFileName, const char* outputFileName) {
 	    doParticle=1;
         } else if (!line.empty() && doParticle==1) {
             // Extract particle data
-	    // std::cout <<"do particle"<<std::endl;
+	    //std::cout <<"do particle"<<std::endl;
             std::istringstream iss(line);
             int particleNumber;
-            float q, pxVal, pyVal, pzVal, eVal, emfVal, hpcVal, hacVal, sticVal;
-            iss >> particleNumber >> q >> pxVal >> pyVal >> pzVal >> eVal >> emfVal >> hpcVal >> hacVal >> sticVal;
+            float q, pxVal, pyVal, pzVal, eVal, emfVal, hpcVal, hacVal, sticVal, lockVal;
+            iss >> particleNumber >> q >> pxVal >> pyVal >> pzVal >> eVal >> emfVal >> hpcVal >> hacVal >> sticVal >> lockVal;
 
             charge.push_back(q);
             px.push_back(pxVal);
@@ -85,10 +87,11 @@ void convert(const char* inputFileName, const char* outputFileName) {
             hpc.push_back(hpcVal);
             hac.push_back(hacVal);
             stic.push_back(sticVal);
+            lock.push_back(lockVal);
 	    if (charge.size()==nTracks) doParticle=0; {
                if (!charge.empty()) {
                    tree.Fill();
-	 	  // std::cout <<"fill"<<std::endl;
+	 	  //std::cout <<"fill"<<std::endl;
                }
 	    }
         }

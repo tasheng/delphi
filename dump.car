@@ -332,7 +332,7 @@ CCC  +        IHAD4 .NE. 0 ) NEED = 1
       DO I=1, NVECP
          WRITE(*, *)  I, VECP(7,I), VECP(1,I),VECP(2,I),
      $        VECP(3,I), VECP(4,I), QEMF(8,I), QHPC(8,I),
-     $        QHAC(8,I), QSTIC(1,I)
+     $        QHAC(8,I), QSTIC(1,I), LVLOCK(I)
       ENDDO
  98   FORMAT(A,I10,A,I10)
  99   FORMAT(A,I10)

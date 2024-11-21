@@ -18,8 +18,10 @@ FILE = {}
 for al in glob.glob('/eos/cms/store/group/phys_heavyions/yjlee/delphiData/1998/*.al'):
 	f = open('PDLINPUT', 'w')
 	f.write(PDLINPUT_txt.format(al))
+	f.close()
 	os.system('cat PDLINPUT')
 	os.system('bash dump.sh')
+	os.system('echo Recorded `grep -c HAPPY dump.log` events!')
 	basename=os.path.basename(al.strip('.al'))
 	os.system('mv dump.log log/dump.{}.log'.format(basename))
 	os.system('mv dump.err err/dump.{}.err'.format(basename))
