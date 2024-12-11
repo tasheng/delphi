@@ -3,9 +3,21 @@
 #include <sstream>
 #include <vector>
 #include <TFile.h>
-#include <TTree.h>
+#include "TTree.h"
+#include "TVector3.h"
 
-void convert(const char* inputFileName, const char* outputFileName) {
+//DataProcessing dependencies
+#include "DataProcessing/include/particleData.h"
+#include "DataProcessing/include/eventSelection.h"
+#include "DataProcessing/include/eventData.h"
+#include "DataProcessing/include/thrustTools.h"
+#include "DataProcessing/include/sphericityTools.h"
+
+using namespace std;
+
+void convert(const char* inputFileName, const char* outputFileName,
+             bool verbose=false)
+{
     // Input and output files
     std::ifstream infile(inputFileName);
     if (!infile.is_open()) {
@@ -20,85 +32,204 @@ void convert(const char* inputFileName, const char* outputFileName) {
     }
 
     // Create a TTree to store event-based data
-    TTree tree("EventData", "Event-based particle data");
+    TTree * out_t= new TTree("t", "t");
+    particleData    out_pData;
+    eventData       out_eData;
 
     // Variables for event information and particle data
-    int eventNumber = 0;
-    int nTracks = 0;
-    std::vector<float> charge, px, py, pz, e, emf, hpc, hac, stic, lock;
+    float emf[particleData::nMaxPart];
+    float hpc[particleData::nMaxPart];
+    float hac[particleData::nMaxPart];
+    float stic[particleData::nMaxPart];
+    float lock[particleData::nMaxPart];
+    out_t->Branch("EMF", emf);
+    out_t->Branch("HPC", hpc);
+    out_t->Branch("HAC", hac);
+    out_t->Branch("STIC", stic);
+    out_t->Branch("LOCK", lock);
 
-    // Create branches
-    tree.Branch("EventNumber", &eventNumber, "EventNumber/I");
-    tree.Branch("NTracks", &nTracks, "NTracks/I");
-    tree.Branch("Charge", &charge);
-    tree.Branch("Px", &px);
-    tree.Branch("Py", &py);
-    tree.Branch("Pz", &pz);
-    tree.Branch("E", &e);
-    tree.Branch("EMF", &emf);
-    tree.Branch("HPC", &hpc);
-    tree.Branch("HAC", &hac);
-    tree.Branch("STIC", &stic);
-    tree.Branch("LOCK", &lock);
+    // register branches
+    do_chThrust           = false;
+    do_neuThrust          = false;
+    do_thrustCorr         = false;
+    do_thrustCorrInverse  = false;
+    do_thrustMissP        = true;
+    out_pData.SetBranchWrite(out_t, 1);
+    out_eData.SetBranchWrite(out_t, 1);
 
     // Process the log file
     std::string line;
     bool doParticle=0;
+    int iEvent=0;
+    int nParticleNoCut = 0; int nParticle = 0;
+    int nParticleHP = 0; int nChargedParticle = 0; int nChargedParticleHP = 0;
+    TVector3 netP(0, 0, 0);
     while (std::getline(infile, line)) {
         if (line.find("HAPPY CHECK: EVENT") != std::string::npos) {
-            // Extract event number
-            std::istringstream iss(line);
-            std::string dummy;
-            char colon;
-            int run, lumi;
-            iss >> dummy >> dummy >> dummy >> run >> colon >> lumi >> colon >> eventNumber;
+            // Locate and extract the part after "HAPPY CHECK: EVENT   :"
+            if(iEvent%1000 == 0)  cout<<"\r event processed : "<<iEvent<<flush;
+            size_t colonPos = line.find('EVENT   :');
+            if (colonPos != std::string::npos) {
+                line = line.substr(colonPos+16);
+                std::istringstream iss(line);
+                // std::cout << "Data substring: '" << line << "'" << std::endl;
+                char colon;
+                iss >> out_pData.RunNo >> colon >> out_pData.EventNo;
+                if (verbose) std::cout << "Run: " << out_pData.RunNo << ", Colon: " << colon << ", Event: " << out_pData.EventNo << std::endl;
+            }
+            out_pData.year = 1998; // temp //
+            // out_pData.subDir = -999;
+            // out_pData.process = -999;
+            out_pData.source = 70; // temp //
+            out_pData.isMC = false;
+            out_pData.isOnres = false;
+            // out_pData.uniqueID = 0;
+            // out_pData.Energy = 0;
+            // out_pData.bFlag = -999;
+            out_pData.particleWeight = 1;
+            // out_pData.bx = -999;
+            // out_pData.by = -999;
+            // out_pData.ebx = -999;
+            // out_pData.eby = -999;
 
-            // Clear the vectors for a new event
-            charge.clear();
-            px.clear();
-            py.clear();
-            pz.clear();
-            e.clear();
-            emf.clear();
-            hpc.clear();
-            hac.clear();
-            stic.clear();
-            lock.clear();
+            nParticle = 0;
+            nParticleHP = 0;
+            nChargedParticle = 0;
+            nChargedParticleHP = 0;
+            netP = TVector3(0, 0, 0);
+
         } else if (line.find("CHECK: TRACKS") != std::string::npos) {
-            // Extract the number of tracks
             std::istringstream iss(line);
             std::string dummy;
-            iss >> dummy >> dummy >> dummy >> nTracks;
-	    doParticle=1;
+            iss >> dummy >> dummy >> dummy >> nParticleNoCut;
+            if (verbose) std::cout <<"get "<< nParticleNoCut << " particles" << std::endl;
+            doParticle=1;
         } else if (!line.empty() && doParticle==1) {
-            // Extract particle data
-	    //std::cout <<"do particle"<<std::endl;
             std::istringstream iss(line);
             int particleNumber;
             float q, pxVal, pyVal, pzVal, eVal, emfVal, hpcVal, hacVal, sticVal, lockVal;
             iss >> particleNumber >> q >> pxVal >> pyVal >> pzVal >> eVal >> emfVal >> hpcVal >> hacVal >> sticVal >> lockVal;
 
-            charge.push_back(q);
-            px.push_back(pxVal);
-            py.push_back(pyVal);
-            pz.push_back(pzVal);
-            e.push_back(eVal);
-            emf.push_back(emfVal);
-            hpc.push_back(hpcVal);
-            hac.push_back(hacVal);
-            stic.push_back(sticVal);
-            lock.push_back(lockVal);
-	    if (charge.size()==nTracks) doParticle=0; {
-               if (!charge.empty()) {
-                   tree.Fill();
-	 	  //std::cout <<"fill"<<std::endl;
-               }
-	    }
+            TLorentzVector temp(pxVal, pyVal, pzVal, eVal);
+
+            ///// veto the beam background and other backgrounds /////
+            bool pass(1);
+            pass = !lockVal; // bad particle
+            ///// veto the beam background and other backgrounds /////
+
+            if (pass)
+            {
+                if (verbose) std::cout <<"do particle: " << nParticle << "-th (" << particleNumber << ")" <<std::endl;
+                netP -= TVector3(pxVal, pyVal, pzVal);
+
+                out_pData.px[nParticle] = pxVal;
+                out_pData.py[nParticle] = pyVal;
+                out_pData.pz[nParticle] = pzVal;
+                emf[nParticle] = emfVal;
+                hpc[nParticle] = hpcVal;
+                hac[nParticle] = hacVal;
+                stic[nParticle] = sticVal;
+                lock[nParticle] = lockVal;
+                out_pData.pt[nParticle] = temp.Pt();
+                out_pData.pmag[nParticle]   = temp.P();
+                out_pData.rap[nParticle]    = temp.Rapidity();
+                out_pData.eta[nParticle]    = temp.Eta();
+                out_pData.theta[nParticle]  = temp.Theta();
+                out_pData.phi[nParticle]    = temp.Phi();
+                out_pData.mass[nParticle]   = temp.M();
+                out_pData.charge[nParticle] = q;
+                out_pData.pwflag[nParticle] = (out_pData.charge[nParticle]!=0)? 0: 4;
+
+                out_pData.highPurity[nParticle]= out_pData.pwflag[nParticle]<=2 && temp.Pt() >= 0.2;
+
+                if(out_pData.pwflag[nParticle]<=2) {
+                    nChargedParticle++;
+                    if (out_pData.highPurity[nParticle]) nChargedParticleHP++;
+                }
+                if (out_pData.highPurity[nParticle]) nParticleHP++;
+                nParticle++;
+            }
+
+            if (particleNumber==nParticleNoCut)  {
+                out_pData.nParticle       = nParticle;
+                out_eData.nChargedParticle  = nChargedParticle;
+                out_eData.nParticleHP       = nParticleHP;
+                out_eData.nChargedParticleHP= nChargedParticleHP;
+                doParticle=0;
+                if (verbose) std::cout <<"End reading particles, recording " << out_pData.nParticle << " particles." <<std::endl;
+
+                out_eData.missP = netP.Mag();
+                out_eData.missPt = netP.Perp();
+                out_eData.missTheta = netP.Theta();
+                out_eData.missPhi = netP.Phi();
+
+                TVector3 thrust             = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL);
+                TVector3 thrustWithMissP    = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL,false,false,NULL,true,out_pData.pwflag);
+
+                out_eData.Thrust        = thrust.Mag();
+                out_eData.TTheta        = thrust.Theta();
+                out_eData.TPhi          = thrust.Phi();
+                out_eData.ThrustWithMissP   = thrustWithMissP.Mag();
+                out_eData.TThetaWithMissP   = thrustWithMissP.Theta();
+                out_eData.TPhiWithMissP     = thrustWithMissP.Phi();
+                if ( do_thrustMissP ) {
+                        setThrustVariables(&out_pData, &out_eData, TVector3(),
+                                TVector3(), TVector3(), TVector3(), TVector3(),
+                                thrustWithMissP);
+                }
+
+                Sphericity spher = Sphericity(out_pData.nParticle,
+                                  out_pData.px,
+                                  out_pData.py,
+                                  out_pData.pz,
+                                  out_pData.pwflag,
+                                  false);
+                spher.setTree(&out_eData);
+
+                eventSelection eSelection;
+                eSelection.setEventSelection(&out_pData, &out_eData);
+
+                Float_t TotalChgEnergy = 0;
+                Int_t totalChgParticles = 0;
+                for(Int_t pI = 0; pI < out_pData.nParticle; ++pI)
+                {
+                    if( out_pData.charge[pI]==0) continue;
+                    if(!out_pData.highPurity[pI]) continue;
+                    TotalChgEnergy += TMath::Sqrt(out_pData.pmag[pI]*out_pData.pmag[pI] + out_pData.mass[pI]*out_pData.mass[pI]);
+                    totalChgParticles += 1;
+                }
+                eSelection.passesTotalChgEnergyMin = TotalChgEnergy >= 15;
+                eSelection.passesNeuNch = out_pData.nParticle-totalChgParticles+out_eData.nChargedParticleHP >= 13;
+                if (verbose)
+                {
+                    printf("out_pData.nParticle: %d\n", out_pData.nParticle);
+                    printf("totalChgParticles: %d\n", totalChgParticles);
+                    printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
+                    printf("eSelection.getPassesNeuNch(): %o\n", eSelection.getPassesNeuNch());
+                    printf("eSelection.getPassesSTheta(): %o\n", eSelection.getPassesSTheta());
+                    printf("eSelection.getPassesTotalChgEnergyMin(): %o\n", eSelection.getPassesTotalChgEnergyMin());
+                    printf("TotalChgEnergy: %.3f, NeuNch: %d\n", TotalChgEnergy, out_pData.nParticle-totalChgParticles+out_eData.nChargedParticleHP);
+                    printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
+                }
+                out_eData.passesBELLE =     eSelection.getPassesNeuNch() && \
+                                eSelection.getPassesSTheta() && \
+                                eSelection.getPassesTotalChgEnergyMin() && \
+                                (out_eData.nChargedParticleHP>=5);
+                out_eData.passesISR =   eSelection.getPassesISR();
+                out_eData.passesWW =    eSelection.getPassesWW();
+                // if(!out_eData.passesBELLE || !out_eData.passesISR) continue;
+
+                out_t->Fill();
+                iEvent ++;
+                // if (iEvent==10) break;
+                if (verbose) std::cout <<"fill"<<std::endl;
+            }
         }
     }
+    printf("Total %d events recorded", iEvent);
 
     // Write the tree to the output file
-    tree.Write();
+    out_t->Write();
     outFile.Close();
     infile.close();
 

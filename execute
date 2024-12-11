@@ -5,7 +5,7 @@ import glob as glob
 os.system('mkdir -p log/')
 os.system('mkdir -p err/')
 os.system('mkdir -p bin/')
-os.system('g++ `root-config --glibs --cflags` -o bin/convert.exe convert.C')
+os.system('g++ `root-config --glibs --cflags` -I TPCNtupleFormat/ `$FASTJETDIR/bin/fastjet-config --cxxflags --libs --plugins` -o bin/convert.exe convert.C')
 
 PDLINPUT_txt = '''
 *

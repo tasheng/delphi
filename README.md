@@ -5,6 +5,8 @@ Converting the delphi open data to TPCNtuple root format
 ```
 ### setup to the DELPHI environment
 source setup.sh
+# TPCNtupleFormat/DataProcessing is based on janicechen git@github.com:janice-cat/StudyMult.git --depth 1
+# we will have to re-define things in the event selection and track selection classes
 ### converting
 ./execute
 ```
