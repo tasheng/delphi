@@ -16,10 +16,11 @@ FILE = {}
 *
 '''
 
-#tin = '/eos/opendata/delphi/simulated-data/cern/qqps/v94c/91.25/qqps*.sdst'
-tin = '/eos/opendata/delphi/simulated-data/karlsruhe/wwex_postdst/v98d2/189/*5802*.xsdst'
+tin = '/eos/opendata/delphi/simulated-data/cern/qqps/v94c/91.25/qqps*21166*.sdst'
+tout = '/eos/user/z/zhangj/DELPHI/simulation/1994/qqps/'
 
-tout = '/eos/user/z/zhangj/DELPHI/simulation/1998/wwex_postdst/v98d2/189/'
+#tin = '/eos/opendata/delphi/simulated-data/karlsruhe/wwex_postdst/v98d2/189/*5798*.xsdst'
+#tout = '/eos/user/z/zhangj/DELPHI/simulation/1998/wwex_postdst/v98d2/189/'
 
 if len(sys.argv) > 1:
     if len(sys.argv) == 3:
@@ -43,6 +44,6 @@ for al in glob.glob(tin):
     os.system(f'mv dump.{basename}.log log/')
     os.system(f'mv dump.{basename}.err err/')
     os.system(f'../bin/convertMC.exe log/dump.{basename}.log out/{basename}.root')
-    os.system(f'mv out/{basename}.root {tout}')
-    os.system(f'rm log/dump.{basename}.log')
-    os.system(f'rm err/dump.{basename}.err')
+    #os.system(f'mv out/{basename}.root {tout}')
+    #os.system(f'rm log/dump.{basename}.log')
+    #os.system(f'rm err/dump.{basename}.err')

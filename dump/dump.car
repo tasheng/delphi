@@ -53,6 +53,101 @@ C Skeleton Analysis Program  Version 2.0/01
       IFLBSP = 2
       IFLBTG = 2
 *
+*--   Put your initialization code here...
+*
+*--   Set-up the default values
+*--   of control flags and keys
+      IFLTRA = 1
+      IFLODR = 1
+      IFLVEC = 22
+      IFLSTR = 11
+      IFLCUT = 3
+      IFLRVR = 111
+      IFLSIM = 1
+      IFLBSP = 2
+      IFLBTG = 2
+      IFLPVT = 1
+      IFLVDR = 1
+      IFLFCT = 1
+      IFLRNQ = 0
+      IFLBHP = 1
+      IFLUTE = 1
+      IFLVDH = 1
+      IFLMUO = 1
+      IFLECL = 22
+      IFLELE = 1
+      IFLEMC = 1
+      IFLPHO = 1
+      IFLPHC = 1
+      IFLSTC = 1
+      IFLHAC = 1
+      IFLHAD = 1
+      IFLRV0 = 1
+      IFLJET = 0
+      IFLENR = 0
+*
+*--   Set the default track selection cuts
+*
+*--   Old SKELANA selection:
+*
+      TRKMOM(1) = 0.1
+      TRKLEN(1) = 30.
+      TRKRPH(1) = 4.
+      TRKZET(1) = 10.
+      TRCCOS(1) = 0.94
+      TRKMAX(1) = 1.E+10
+      TRKERR(1) = 1.
+      TRNCOS(1) = 1.
+      EHPC(1)   = 1.E-10
+      EFEMC(1)  = 1.E-10
+      EHAC(1)   = 1.E-10
+      ESTIC(1)  = 1.E-10
+      RECCAL(1) = 1.E+10
+      VDONLY(1) = 0
+      IDVDWZ(1) = 0
+      IHADRJ(1) = 0
+      ISTOEL(1) = 0
+*
+*--   May 98 tuning for 97 data
+*
+      TRKMOM(2) = 0.2
+      TRKLEN(2) = 0.
+      TRKRPH(2) = 4.
+      TRKZET(2) = 4.
+      TRCCOS(2) = 1.
+      TRKMAX(2) = 1.5
+      TRKERR(2) = 1.
+      TRNCOS(2) = 1.
+      EHPC(2)   = 0.5
+      EFEMC(2)  = 0.4
+      EHAC(2)   = 0.9
+      ESTIC(2)  = 0.3
+      RECCAL(2) = 5.
+      VDONLY(2) = 2
+      IDVDWZ(2) = 1
+      IHADRJ(2) = 0
+      ISTOEL(2) = 0
+*
+*--   Feb 2025 for DELPHI re-analysis at Z pole
+*
+      TRKMOM(3) = 0.1
+      TRKLEN(3) = 30.
+      TRKRPH(3) = 2.
+      TRKZET(3) = 10.
+      TRCCOS(3) = 0.94
+      TRKMAX(3) = 1.E+10
+      TRKERR(3) = 1.
+      TRNCOS(3) = 0.98
+      EHPC(3)   = 1.E-10
+      EFEMC(3)  = 1.E-10
+      EHAC(3)   = 1.E-10
+      ESTIC(3)  = 1.E-10
+      RECCAL(3) = 1.E+10
+      VDONLY(3) = 0
+      IDVDWZ(3) = 0
+      IHADRJ(3) = 0
+      ISTOEL(3) = 0
+*
 *     Print the chosen flag values and track selection cuts:
 *
       WRITE (*,1000) IFLTRA,IFLODR,IFLVEC,IFLSTR,IFLCUT,
@@ -111,8 +206,6 @@ C Skeleton Analysis Program  Version 2.0/01
          CALL PSRUNQ(0)
       ENDIF
 +SELF.
-*
-*--   Put your initialization code here...
 *
 *-----------------------------------------------------------------------
  1000 FORMAT(/,1X,'%PSMAIN-I-USER00, ','SKELANA flags for this run:',/,
@@ -328,17 +421,17 @@ CCC  +        IHAD4 .NE. 0 ) NEED = 1
 *---  Dump event information as plain text
       PRINT *, "--------------------------"
       WRITE(*,98)      "HAPPY CHECK: EVENT :",IIIRUN,":",IIIEVT
-      WRITE(*,97)      "CHECK: ECM     :",ECMAS
-      WRITE(*, 99)     "CHECK: TRACKS :", NVECP
+      WRITE(*,97)      "CHECK: ECM:",ECMAS
+      WRITE(*, 99)     "CHECK: TRACKS:", NVECP
       DO I=1, NVECP
          WRITE(*, *)  I, VECP(7,I), VECP(1,I),VECP(2,I),
      $        VECP(3,I), VECP(4,I), QEMF(8,I), QHPC(8,I),
-     $        QHAC(8,I), QSTIC(1,I), LVLOCK(I)
+     $        QHAC(8,I), QSTIC(1,I), LVLOCK(I), QTRAC(4,I),
+     $        QTRAC(5,I), QTRAC(24,I)
       ENDDO
  97   FORMAT(A,F10.2)
  98   FORMAT(A,I10,A,I10)
  99   FORMAT(A,I10)
- 100  FORMAT(A,F12.6)
  104  FORMAT(A,"(",F12.6,",",F12.6,",",F12.6,",",F12.6,")")
       END
 *

@@ -114,29 +114,29 @@ class eventData{
 			      "nChargedHadronsHP_Corrected",
 			      "nChargedHadrons_GT0p4",
 			      "nChargedHadrons_GT0p4Thrust",
-				  "nChargedParticle",
-          "nChargedParticleHP",
-          "nChargedParticleHPSmear",
-				  "nChargedParticleHPUnfold",
-				  "nParticleHP",
+			      "nChargedParticle",
+			      "nChargedParticleHP",
+			      "nChargedParticleHPSmear",
+			      "nChargedParticleHPUnfold",
+			      "nParticleHP",
 			      "Thrust",
 			      "TTheta",
 			      "TPhi",
 			      "Thrust_charged",
 			      "TTheta_charged",
 			      "TPhi_charged",
-            "Thrust_neutral",
-            "TTheta_neutral",
-            "TPhi_neutral",
-            "ThrustCorr",
-            "TThetaCorr",
-            "TPhiCorr",
-            "ThrustCorrInverse",
-            "TThetaCorrInverse",
-            "TPhiCorrInverse",
-            "ThrustWithMissP",
-            "TThetaWithMissP",
-            "TPhiWithMissP",
+			      "Thrust_neutral",
+			      "TTheta_neutral",
+			      "TPhi_neutral",
+			      "ThrustCorr",
+			      "TThetaCorr",
+			      "TPhiCorr",
+			      "ThrustCorrInverse",
+			      "TThetaCorrInverse",
+			      "TPhiCorrInverse",
+			      "ThrustWithMissP",
+			      "TThetaWithMissP",
+			      "TPhiWithMissP",
                               "Sphericity",
                               "STheta",
                               "SPhi",
@@ -336,11 +336,11 @@ void eventData::SetBranchWrite(TTree* inTree_p, bool doMinimal)
 {
   if (!doMinimal){
     inTree_p->Branch("passesNTupleAfterCut", &passesNTupleAfterCut, "passesNTupleAfterCut/O");
-    //inTree_p->Branch("passesTotalChgEnergyMin", &passesTotalChgEnergyMin, "passesTotalChgEnergyMin/O");
-    //inTree_p->Branch("passesNTrkMin", &passesNTrkMin, "passesNTrkMin/O");
-    //inTree_p->Branch("passesSTheta", &passesSTheta, "passesSTheta/O");
+    inTree_p->Branch("passesTotalChgEnergyMin", &passesTotalChgEnergyMin, "passesTotalChgEnergyMin/O");
+    inTree_p->Branch("passesNTrkMin", &passesNTrkMin, "passesNTrkMin/O");
+    inTree_p->Branch("passesSTheta", &passesSTheta, "passesSTheta/O");
     //inTree_p->Branch("passesMissP", &passesMissP, "passesMissP/O");
-    //inTree_p->Branch("passesNeuNch", &passesNeuNch, "passesNeuNch/O");
+    inTree_p->Branch("passesNeuNch", &passesNeuNch, "passesNeuNch/O");
     //inTree_p->Branch("passesAll", &passesAll, "passesAll/O");
     inTree_p->Branch("missTheta", &missTheta, "missTheta/F");
     inTree_p->Branch("missPhi", &missPhi, "missPhi/F");

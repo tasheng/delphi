@@ -55,7 +55,7 @@ void convert(const char* inputFileName, const char* outputFileName,
     do_thrustCorrInverse  = false;
     do_thrustMissP        = true;
     out_pData.SetBranchWrite(out_t, 1);
-    out_eData.SetBranchWrite(out_t, 1);
+    out_eData.SetBranchWrite(out_t, 0);
 
     // Process the log file
     std::string line;
@@ -102,20 +102,20 @@ void convert(const char* inputFileName, const char* outputFileName,
         } else if (line.find("CHECK: ECM") != std::string::npos) {
 	    std::istringstream iss(line);
 	    std::string dummy;
-            iss >> dummy >> dummy >> dummy >> energy;
+            iss >> dummy >> dummy >> energy;
 	    if (verbose) std::cout <<"ECM: "<< energy << std::endl;
 	    out_pData.Energy = energy;
 	} else if (line.find("CHECK: TRACKS") != std::string::npos) {
             std::istringstream iss(line);
             std::string dummy;
-            iss >> dummy >> dummy >> dummy >> nParticleNoCut;
+            iss >> dummy >> dummy >> nParticleNoCut;
             if (verbose) std::cout <<"get "<< nParticleNoCut << " particles" << std::endl;
             doParticle=1;
         } else if (!line.empty() && doParticle==1) {
             std::istringstream iss(line);
             int particleNumber;
-            float q, pxVal, pyVal, pzVal, eVal, emfVal, hpcVal, hacVal, sticVal, lockVal;
-            iss >> particleNumber >> q >> pxVal >> pyVal >> pzVal >> eVal >> emfVal >> hpcVal >> hacVal >> sticVal >> lockVal;
+            float q, pxVal, pyVal, pzVal, eVal, emfVal, hpcVal, hacVal, sticVal, lockVal, d0, z0, length;
+            iss >> particleNumber >> q >> pxVal >> pyVal >> pzVal >> eVal >> emfVal >> hpcVal >> hacVal >> sticVal >> lockVal >> d0 >> z0 >> length;
 
             TLorentzVector temp(pxVal, pyVal, pzVal, eVal);
 
@@ -145,9 +145,17 @@ void convert(const char* inputFileName, const char* outputFileName,
                 out_pData.phi[nParticle]    = temp.Phi();
                 out_pData.mass[nParticle]   = temp.M();
                 out_pData.charge[nParticle] = q;
-                out_pData.pwflag[nParticle] = (out_pData.charge[nParticle]!=0)? 0: 4;
+                out_pData.pwflag[nParticle] = (out_pData.charge[nParticle]!=0)? 0: 4; // charged = 0, neutral = 4
+		out_pData.d0[nParticle] = d0;
+		out_pData.z0[nParticle] = z0;
+		out_pData.ntpc[nParticle] = (out_pData.charge[nParticle]!=0)? 7: 0;
 
-                out_pData.highPurity[nParticle]= out_pData.pwflag[nParticle]<=2 && temp.Pt() >= 0.2;
+		// follow the same definition in eventSelection.h
+		if (out_pData.pwflag[nParticle]<=2) {
+		  out_pData.highPurity[nParticle]= out_pData.pwflag[nParticle]<=2 && temp.Pt() >= 0.2;
+		} else if (out_pData.pwflag[nParticle]==4) {
+		  out_pData.highPurity[nParticle]= out_pData.pwflag[nParticle]==4 && temp.Pt() >= 0.4;
+		}
 
                 if(out_pData.pwflag[nParticle]<=2) {
                     nChargedParticle++;
@@ -196,34 +204,39 @@ void convert(const char* inputFileName, const char* outputFileName,
                 eventSelection eSelection;
                 eSelection.setEventSelection(&out_pData, &out_eData);
 
-                Float_t TotalChgEnergy = 0;
-                Int_t totalChgParticles = 0;
-                for(Int_t pI = 0; pI < out_pData.nParticle; ++pI)
-                {
-                    if( out_pData.charge[pI]==0) continue;
-                    if(!out_pData.highPurity[pI]) continue;
-                    TotalChgEnergy += TMath::Sqrt(out_pData.pmag[pI]*out_pData.pmag[pI] + out_pData.mass[pI]*out_pData.mass[pI]);
-                    totalChgParticles += 1;
-                }
-                eSelection.passesTotalChgEnergyMin = TotalChgEnergy >= 15;
-                eSelection.passesNeuNch = out_pData.nParticle-totalChgParticles+out_eData.nChargedParticleHP >= 13;
+// The following lines are redundant
+//                Float_t TotalChgEnergy = 0;
+//                Int_t totalChgParticles = 0;
+//                for(Int_t pI = 0; pI < out_pData.nParticle; ++pI)
+//                {
+//                    if( out_pData.charge[pI]==0) continue;
+//                    if(!out_pData.highPurity[pI]) continue;
+//                    TotalChgEnergy += TMath::Sqrt(out_pData.pmag[pI]*out_pData.pmag[pI] + out_pData.mass[pI]*out_pData.mass[pI]);
+//                    totalChgParticles += 1;
+//                }
+//                eSelection.passesTotalChgEnergyMin = TotalChgEnergy >= 15;
+//                eSelection.passesNeuNch = out_pData.nParticle-totalChgParticles+out_eData.nChargedParticleHP >= 13;
                 if (verbose)
                 {
-                    printf("out_pData.nParticle: %d\n", out_pData.nParticle);
-                    printf("totalChgParticles: %d\n", totalChgParticles);
-                    printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
+		  //printf("out_pData.nParticle: %d\n", out_pData.nParticle);
+                  //printf("totalChgParticles: %d\n", totalChgParticles);
+                  //printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
                     printf("eSelection.getPassesNeuNch(): %o\n", eSelection.getPassesNeuNch());
                     printf("eSelection.getPassesSTheta(): %o\n", eSelection.getPassesSTheta());
                     printf("eSelection.getPassesTotalChgEnergyMin(): %o\n", eSelection.getPassesTotalChgEnergyMin());
-                    printf("TotalChgEnergy: %.3f, NeuNch: %d\n", TotalChgEnergy, out_pData.nParticle-totalChgParticles+out_eData.nChargedParticleHP);
+                    //printf("TotalChgEnergy: %.3f, NeuNch: %d\n", TotalChgEnergy, out_pData.nParticle-totalChgParticles+out_eData.nChargedParticleHP);
                     printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
                 }
-                out_eData.passesBELLE =     eSelection.getPassesNeuNch() && \
-                                eSelection.getPassesSTheta() && \
-                                eSelection.getPassesTotalChgEnergyMin() && \
-                                (out_eData.nChargedParticleHP>=5);
-                out_eData.passesISR =   eSelection.getPassesISR();
-                out_eData.passesWW =    eSelection.getPassesWW();
+		out_eData.passesTotalChgEnergyMin = eSelection.getPassesTotalChgEnergyMin();
+		out_eData.passesNeuNch = eSelection.getPassesNeuNch();
+		out_eData.passesNTrkMin = eSelection.getPassesNTrkMin();
+		out_eData.passesSTheta = eSelection.getPassesSTheta();
+                out_eData.passesBELLE = eSelection.getPassesNeuNch() && \
+		  eSelection.getPassesSTheta() &&			\
+		  eSelection.getPassesTotalChgEnergyMin() &&		\
+		  eSelection.getPassesNTrkMin();
+                out_eData.passesISR = eSelection.getPassesISR();
+                out_eData.passesWW = eSelection.getPassesWW();
                 // if(!out_eData.passesBELLE || !out_eData.passesISR) continue;
 
                 out_t->Fill();

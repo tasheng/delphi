@@ -25,7 +25,7 @@ struct SOURCE{
 
 class particleData{
  public:
-  static const int nMaxPart = 6500;
+  static const int nMaxPart = 650;
   bool initMinimal;
 
   int nParticle;
@@ -197,9 +197,9 @@ class particleData{
 			      "phi_wrtChThr",
 			      "pt_wrtChThrPerp",
 			      "eta_wrtChThrPerp",
-            "rap_wrtChThrPerp",
+			      "rap_wrtChThrPerp",
 			      "theta_wrtChThrPerp",
-            "phi_wrtChThrPerp",
+			      "phi_wrtChThrPerp",
 			      "pt_wrtNeuThr",
 			      "eta_wrtNeuThr",
 			      "rap_wrtNeuThr",
