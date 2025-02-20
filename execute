@@ -15,11 +15,11 @@ FILE = {}
 *
 '''
 
-nickname = 'Y13709'
+nickname = 'Y13710'
 #nickname = 'R07930'
 
 os.chdir('dump')
-for al in glob.glob(f'/eos/opendata/delphi/collision-data/{nickname}/{nickname}.1.al'):
+for al in glob.glob(f'/eos/opendata/delphi/collision-data/{nickname}/{nickname}.*.al'):
     f = open('PDLINPUT', 'w')
     f.write(PDLINPUT_txt.format(al))
     f.close()

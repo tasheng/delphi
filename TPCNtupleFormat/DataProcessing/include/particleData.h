@@ -179,7 +179,7 @@ class particleData{
 			      "vx",
 			      "vy",
 			      "vz",
-			      "weight", 
+			      "weight",
 			      "pt_wrtThr",
 			      "eta_wrtThr",
 			      "rap_wrtThr",
@@ -678,6 +678,9 @@ void particleData::SetBranchWrite(TTree* inTree_p, bool writeMinimal)
   inTree_p->Branch("pz", pz, "pz[nParticle]/F");
   inTree_p->Branch("mass", mass, "mass[nParticle]/F");
   inTree_p->Branch("ntpc", ntpc, "ntpc[nParticle]/S");
+  inTree_p->Branch("d0", d0, "d0[nParticle]/F");
+  inTree_p->Branch("z0", z0, "z0[nParticle]/F");
+  inTree_p->Branch("weight", weight, "weight[nParticle]/F");
   
   if (!writeMinimal)
   {
@@ -692,14 +695,11 @@ void particleData::SetBranchWrite(TTree* inTree_p, bool writeMinimal)
 
 
     inTree_p->Branch("pmag", pmag, "pmag[nParticle]/F");
-    inTree_p->Branch("d0", d0, "d0[nParticle]/F");
-    inTree_p->Branch("z0", z0, "z0[nParticle]/F");
     inTree_p->Branch("nitc", nitc, "nitc[nParticle]/S");
     inTree_p->Branch("nvdet", nvdet, "nvdet[nParticle]/S");
     inTree_p->Branch("vx", vx, "vx[nParticle]/F");
     inTree_p->Branch("vy", vy, "vy[nParticle]/F");
     inTree_p->Branch("vz", vz, "vz[nParticle]/F");
-    inTree_p->Branch("weight", weight, "weight[nParticle]/F");
 
     inTree_p->Branch("pt_wrtThrPerp", pt_wrtThrPerp, "pt_wrtThrPerp[nParticle]/F");
     inTree_p->Branch("eta_wrtThrPerp", eta_wrtThrPerp, "eta_wrtThrPerp[nParticle]/F");

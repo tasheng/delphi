@@ -149,6 +149,7 @@ void convert(const char* inputFileName, const char* outputFileName,
 		out_pData.d0[nParticle] = d0;
 		out_pData.z0[nParticle] = z0;
 		out_pData.ntpc[nParticle] = (out_pData.charge[nParticle]!=0)? 7: 0;
+		out_pData.weight[nParticle] = length; // use this variable to store track length for DELPHI 
 
 		// follow the same definition in eventSelection.h
 		if (out_pData.pwflag[nParticle]<=2) {

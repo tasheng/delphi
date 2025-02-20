@@ -16,7 +16,7 @@ FILE = {}
 *
 '''
 
-tin = '/eos/opendata/delphi/simulated-data/cern/qqps/v94c/91.25/qqps*21166*.sdst'
+tin = '/eos/opendata/delphi/simulated-data/cern/qqps/v94c/91.25/qqps*.sdst'
 tout = '/eos/user/z/zhangj/DELPHI/simulation/1994/qqps/'
 
 #tin = '/eos/opendata/delphi/simulated-data/karlsruhe/wwex_postdst/v98d2/189/*5798*.xsdst'

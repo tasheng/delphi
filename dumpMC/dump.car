@@ -132,7 +132,7 @@ C Skeleton Analysis Program  Version 2.0/01
 *
       TRKMOM(3) = 0.1
       TRKLEN(3) = 30.
-      TRKRPH(3) = 2.
+      TRKRPH(3) = 5.
       TRKZET(3) = 10.
       TRCCOS(3) = 0.94
       TRKMAX(3) = 1.E+10
