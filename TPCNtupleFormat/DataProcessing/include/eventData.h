@@ -82,6 +82,11 @@ class eventData{
   Float_t C_linearized;
   Float_t D_linearized;
 
+  Float_t Mvis;
+  Float_t sPrime;
+  Float_t d2;
+  Float_t cW;
+
   // user study:
   //    not involved in the output procedure,
   //    but just provide a placeholder here
@@ -91,7 +96,7 @@ class eventData{
   Float_t gE;
   Float_t qbarE;
 
-  static const int nVar = 57;
+  static const int nVar = 61;
   std::string varStr[nVar] = {"passesNTupleAfterCut",
 			      "passesTotalChgEnergyMin",
 			      "passesNTrkMin",
@@ -148,7 +153,11 @@ class eventData{
                               "C_linearized",
                               "D_linearized",
 			      "passesLEP1TwoPC",
-			      "passesBELLE"
+			      "passesBELLE",
+			      "Mvis",
+			      "sPrime",
+			      "d2",
+			      "cW"
                              };
 
   bool varIsGood[nVar];
@@ -229,6 +238,11 @@ eventData::eventData()
   D_linearized = -999;
   passesLEP1TwoPC = false;
   passesBELLE = false;
+
+  Mvis = -999;
+  sPrime = -999;
+  d2 = -999;
+  cW = -999;
 
   chgdE      = -999;
   spherTheta = -999;
@@ -322,6 +336,11 @@ void eventData::SetStatusAndAddressRead(TTree* inTree_p, std::vector<std::string
   if(varIsGood[55]) inTree_p->SetBranchAddress("passesLEP1TwoPC", &passesLEP1TwoPC);
   if(varIsGood[56]) inTree_p->SetBranchAddress("passesBELLE", &passesBELLE);
 
+  if(varIsGood[57]) inTree_p->SetBranchAddress("Mvis", &Mvis);
+  if(varIsGood[58]) inTree_p->SetBranchAddress("sPrime", &sPrime);
+  if(varIsGood[59]) inTree_p->SetBranchAddress("d2", &d2);
+  if(varIsGood[60]) inTree_p->SetBranchAddress("cW", &cW);
+
   inTree_p->SetBranchAddress("chgdE", &chgdE);
   inTree_p->SetBranchAddress("spherTheta", &spherTheta);
   inTree_p->SetBranchAddress("ISRE", &ISRE);
@@ -395,6 +414,11 @@ void eventData::SetBranchWrite(TTree* inTree_p, bool doMinimal)
   inTree_p->Branch("passesWW", &passesWW, "passesWW/O");
   inTree_p->Branch("missPt", &missPt, "missPt/F");
   inTree_p->Branch("missP", &missP, "missP/F");
+
+  inTree_p->Branch("Mvis", &Mvis, "Mvis/F");
+  inTree_p->Branch("sPrime", &sPrime, "sPrime/F");
+  inTree_p->Branch("d2", &d2, "d2/F");
+  inTree_p->Branch("cW", &cW, "cW/F");
   
   return;
 }

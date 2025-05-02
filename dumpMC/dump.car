@@ -92,12 +92,12 @@ C Skeleton Analysis Program  Version 2.0/01
 *
       TRKMOM(1) = 0.1
       TRKLEN(1) = 30.
-      TRKRPH(1) = 4.
+      TRKRPH(1) = 5.
       TRKZET(1) = 10.
       TRCCOS(1) = 0.94
-      TRKMAX(1) = 1.E+10
       TRKERR(1) = 1.
-      TRNCOS(1) = 1.
+      TRNCOS(1) = 0.98
+      TRKMAX(1) = 1.E+10
       EHPC(1)   = 1.E-10
       EFEMC(1)  = 1.E-10
       EHAC(1)   = 1.E-10
@@ -128,25 +128,25 @@ C Skeleton Analysis Program  Version 2.0/01
       IHADRJ(2) = 0
       ISTOEL(2) = 0
 *
-*--   Feb 2025 for DELPHI re-analysis at Z pole
+*--   April 99 tuning for 98 data
 *
       TRKMOM(3) = 0.1
       TRKLEN(3) = 30.
-      TRKRPH(3) = 5.
-      TRKZET(3) = 10.
+      TRKRPH(3) = 4.
+      TRKZET(3) = 4.
       TRCCOS(3) = 0.94
-      TRKMAX(3) = 1.E+10
+      TRKMAX(3) = 1.5
       TRKERR(3) = 1.
       TRNCOS(3) = 0.98
-      EHPC(3)   = 1.E-10
-      EFEMC(3)  = 1.E-10
-      EHAC(3)   = 1.E-10
-      ESTIC(3)  = 1.E-10
-      RECCAL(3) = 1.E+10
-      VDONLY(3) = 0
-      IDVDWZ(3) = 0
-      IHADRJ(3) = 0
-      ISTOEL(3) = 0
+      EHPC(3)   = 0.3
+      EFEMC(3)  = 0.4
+      EHAC(3)   = 0.
+      ESTIC(3)  = 0.3
+      RECCAL(3) = 5.0
+      VDONLY(3) = 1
+      IDVDWZ(3) = 1
+      IHADRJ(3) = 2
+      ISTOEL(3) = 1
 *
 *     Print the chosen flag values and track selection cuts:
 *
@@ -421,9 +421,9 @@ CCC  +        IHAD4 .NE. 0 ) NEED = 1
 
 *---  Dump event information as plain text
       PRINT *, "--------------------------"
-      WRITE(*,98)      "HAPPY CHECK: EVENT :",IIIRUN,":",IIIEVT
+      WRITE(*,98)      "HAPPY CHECK: EVENT:",IIIRUN, IIIEVT
       WRITE(*,97)      "CHECK: ECM:",ECMAS
-      WRITE(*, 99)     "CHECK: TRACKS:", NVECP
+      WRITE(*, 99)     "CHECK: TRACKS:", NVECP, LENEMF, LENHPC, LENHAC
       DO I=1, NVECP
          WRITE(*, *)  I, VECP(7,I), VECP(1,I),VECP(2,I),
      $        VECP(3,I), VECP(4,I), QEMF(8,I), QHPC(8,I),
@@ -436,8 +436,8 @@ CCC  +        IHAD4 .NE. 0 ) NEED = 1
      $        PP(I,3), PP(I,4), PP(I,5), KP(I,1)
       ENDDO
  97   FORMAT(A,F10.2)
- 98   FORMAT(A,I10,A,I10)
- 99   FORMAT(A,I10)
+ 98   FORMAT(A,I10,I10)
+ 99   FORMAT(A,I10,I10,I10,I10)
  104  FORMAT(A,I10)
 * 105  FORMAT(A,I10,F12.6, F12.6, F12.6, F12.6, F12.6, F12.6,I10)
 * 106  FORMAT(A,"(",F12.6,",",F12.6,",",F12.6,",",F12.6,")")

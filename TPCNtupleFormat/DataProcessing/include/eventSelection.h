@@ -33,7 +33,7 @@ class MyInfo: public fastjet::PseudoJet::UserInfoBase {
 };
 
 class eventSelection{
- public:
+public:
   std::vector<fastjet::PseudoJet> particles;
   std::vector<fastjet::PseudoJet> particlesFourJetClustering;
   std::map<int, fastjet::PseudoJet> ISRgammaCand;
@@ -74,12 +74,10 @@ class eventSelection{
   Bool_t passesNeuNch = false;
 
   Bool_t passesISR = false;
+  Bool_t passesISR2 = false;
   Bool_t passesWW = false;
   Bool_t passesD2 = false;
   Bool_t passesCW = false;
-
-  Float_t d2 = 9999999.;
-  Float_t cW = 9999999.;
 
   eventSelection(){
     jDefISR = fastjet::JetDefinition(fastjet::ee_kt_algorithm);
@@ -107,9 +105,19 @@ class eventSelection{
   Bool_t getPassesISR(){return passesISR;}
   Bool_t getPassesWW(){return passesWW;}
 
-  private:
-    TrackSelection trkSel = TrackSelection();
-    NeutralHadronSelection neutralHadronSel;
+  Float_t getMvis(){return _Mvis;}
+  Float_t getsPrime(){return _sPrime;}
+  Float_t getd2(){return _d2;}
+  Float_t getcW(){return _cW;}
+
+private:
+  TrackSelection trkSel = TrackSelection();
+  NeutralHadronSelection neutralHadronSel;
+
+  Float_t _d2 = 9999999.;
+  Float_t _cW = 9999999.;
+  Float_t _Mvis = 9999999.;
+  Float_t _sPrime = 9999999.;
 
 };
 
@@ -193,6 +201,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData)
   passesMissP = false;
 
   passesISR = false;
+  passesISR2 = false;
   passesWW = false;
   passesD2 = false;
   passesCW = false;
@@ -254,6 +263,9 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData)
 
   //cuts from http://cds.cern.ch/record/690637/files/ep-2003-084.pdf, page2, middle paragraph (before d^2 equation
   passesISR = mass/inPart->Energy > .7 || sPrime/(inPart->Energy*inPart->Energy) > .81;
+
+  _Mvis = static_cast<float>(mass);
+  _sPrime = static_cast<float>(sPrime);
 
   if(!passesISR) return;
 
@@ -340,7 +352,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData)
     finalFourJet.at(i) = fourJets.at(i);
   }
 
-  d2 = 999999999.;
+  _d2 = 999999999.;
   Double_t smallestAngle = 999999.;
   
   for(unsigned int i = 0; i < fourJets.size()-1; ++i){
@@ -351,7 +363,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData)
     }
   }
   
-  cW = TMath::Cos(smallestAngle);
+  _cW = TMath::Cos(smallestAngle);
 
   std::vector<double> twoJetMasses;
   for(unsigned int i = 0; i < fourJets.size()-1; ++i){
@@ -367,12 +379,12 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData)
       d2Temp += (twoJetMasses.at(j) - 80.4)*(twoJetMasses.at(j) - 80.4);
       d2Temp /= (80.4*80.4);
       
-      if(d2Temp < d2) d2 = d2Temp;
+      if(d2Temp < _d2) _d2 = d2Temp;
     }
   }
 
-  passesD2 = d2 >= .1;
-  passesCW = cW >= .9;
+  passesD2 = _d2 >= .1;
+  passesCW = _cW >= .9;
   passesWW = passesD2 || passesCW;
 
   return;
@@ -487,6 +499,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
   passesMissP = false;
 
   passesISR = false;
+  passesISR2 = false;
   passesWW = false;
   passesD2 = false;
   passesCW = false;
@@ -546,6 +559,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
   if (particles.size()<=1)
   {
     passesISR = 0;
+    passesISR2 = 0;
     out_sPrime= -999;
     out_mvis  = -999;
     return;
@@ -568,6 +582,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
 
   //cuts from http://cds.cern.ch/record/690637/files/ep-2003-084.pdf, page2, middle paragraph (before d^2 equation
   passesISR = mass/inPart->Energy > .7 || sPrime/(inPart->Energy*inPart->Energy) > .81;
+  passesISR2 = sPrime > 110;
   out_sPrime= sPrime;
   out_mvis  = mass;
 
@@ -674,7 +689,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
     finalFourJet.at(i) = fourJets.at(i);
   }
 
-  d2 = 999999999.;
+  _d2 = 999999999.;
   Double_t smallestAngle = 999999.;
   
   for(unsigned int i = 0; i < fourJets.size()-1; ++i){
@@ -685,7 +700,7 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
     }
   }
   
-  cW = TMath::Cos(smallestAngle);
+  _cW = TMath::Cos(smallestAngle);
 
   std::vector<double> twoJetMasses;
   for(unsigned int i = 0; i < fourJets.size()-1; ++i){
@@ -701,15 +716,15 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
       d2Temp += (twoJetMasses.at(j) - 80.4)*(twoJetMasses.at(j) - 80.4);
       d2Temp /= (80.4*80.4);
       
-      if(d2Temp < d2) d2 = d2Temp;
+      if(d2Temp < _d2) _d2 = d2Temp;
     }
   }
 
-  passesD2 = d2 >= .1;
-  passesCW = cW >= .9;
+  passesD2 = _d2 >= .1;
+  passesCW = _cW >= .9;
   passesWW = passesD2 || passesCW;
-  out_d2 = d2;
-  out_cW = cW;
+  out_d2 = _d2;
+  out_cW = _cW;
 
   return;
 }

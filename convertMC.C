@@ -5,6 +5,7 @@
 #include <TFile.h>
 #include "TTree.h"
 #include "TVector3.h"
+#include <cstdlib>
 
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
@@ -49,6 +50,11 @@ void convert(const char* inputFileName, const char* outputFileName,
     float hac[particleData::nMaxPart];
     float stic[particleData::nMaxPart];
     float lock[particleData::nMaxPart];
+    //out_t->Branch("EMF", emf, "emf[nMaxPart]/F");
+    //out_t->Branch("HPC", hpc, "hpc[nMaxPart]/F");
+    //out_t->Branch("HAC", hac, "hac[nMaxPart]/F");
+    //out_t->Branch("STIC", stic, "stic[nMaxPart]/F");
+    //out_t->Branch("LOCK", lock, "lock[nMaxPart]/F");
     out_t->Branch("EMF", emf);
     out_t->Branch("HPC", hpc);
     out_t->Branch("HAC", hac);
@@ -79,54 +85,59 @@ void convert(const char* inputFileName, const char* outputFileName,
     int nParticleHP = 0; int nChargedParticle = 0; int nChargedParticleHP = 0;
     int nGenParticleHP = 0; int nGenChargedParticle = 0; int nGenChargedParticleHP = 0;
     float energy = 0;
+    int RunNo;
+    int EventNo;
     TVector3 netP(0, 0, 0);
+    TVector3 netChargedP(0, 0, 0);
     TVector3 netPGen(0, 0, 0);
+    TVector3 netChargedPGen(0, 0, 0);
     while (std::getline(infile, line)) {
         if (line.find("HAPPY CHECK: EVENT") != std::string::npos) {
-            // Locate and extract the part after "HAPPY CHECK: EVENT   :"
-            if(iEvent%1000 == 0)  cout<<"\r event processed : "<<iEvent<<flush;
-            size_t colonPos = line.find('EVENT   :');
-            if (colonPos != std::string::npos) {
-                line = line.substr(colonPos+16);
-                std::istringstream iss(line);
-                // std::cout << "Data substring: '" << line << "'" << std::endl;
-                char colon;
-                iss >> out_pData.RunNo >> colon >> out_pData.EventNo;
-		out_pData_gen.RunNo = out_pData.RunNo;
-		out_pData_gen.EventNo = out_pData.EventNo;
-                if (verbose) std::cout << "Run: " << out_pData.RunNo << ", Colon: " << colon << ", Event: " << out_pData.EventNo << std::endl;
-            }
-            out_pData.year = 1998; // temp //
-            // out_pData.subDir = -999;
-            // out_pData.process = -999;
-            out_pData.source = 70; // temp //
-            out_pData.isMC = true;
-            out_pData.isOnres = false;
-	    out_pData_gen.isMC = true;
-            out_pData_gen.isOnres = false;
-            // out_pData.uniqueID = 0;
-            // out_pData.Energy = 0;
-            // out_pData.bFlag = -999;
-	    out_pData.particleWeight = 1;
-            out_pData_gen.particleWeight = 1;
-            // out_pData.bx = -999;
-            // out_pData.by = -999;
-            // out_pData.ebx = -999;
-            // out_pData.eby = -999;
+	  // Locate and extract the part after "HAPPY CHECK: EVENT   :"
+	  if(iEvent%1000 == 0)  cout<<"\r event processed : "<<iEvent<<flush;
+	  std::istringstream iss(line);
+	  std::string dummy;
+	  iss >> dummy >> dummy >> dummy >> RunNo >> EventNo;
+	  out_pData.RunNo = RunNo;
+	  out_pData.EventNo = EventNo;
 
-            nParticle = 0;
-            nParticleHP = 0;
-            nChargedParticle = 0;
-            nChargedParticleHP = 0;
-            netP = TVector3(0, 0, 0);
-
-	    nGenParticle = 0;
-            nGenParticleHP = 0;
-            nGenChargedParticle = 0;
-            nGenChargedParticleHP = 0;
-            netPGen = TVector3(0, 0, 0);
-
-        } else if (line.find("CHECK: ECM") != std::string::npos) {
+	  out_pData_gen.RunNo = out_pData.RunNo;
+	  out_pData_gen.EventNo = out_pData.EventNo;
+	  
+	  if (verbose) std::cout << "Run: " << out_pData.RunNo << ", Event: " << out_pData.EventNo << std::endl;
+	  out_pData.year = 1998; // temp //
+	  // out_pData.subDir = -999;
+	  // out_pData.process = -999;
+	  out_pData.source = 70; // temp //
+	  out_pData.isMC = true;
+	  out_pData.isOnres = false;
+	  out_pData_gen.isMC = true;
+	  out_pData_gen.isOnres = false;
+	  // out_pData.uniqueID = 0;
+	  // out_pData.Energy = 0;
+	  // out_pData.bFlag = -999;
+	  out_pData.particleWeight = 1;
+	  out_pData_gen.particleWeight = 1;
+	  // out_pData.bx = -999;
+	  // out_pData.by = -999;
+	  // out_pData.ebx = -999;
+	  // out_pData.eby = -999;
+	
+	  nParticle = 0;
+	  nParticleHP = 0;
+	  nChargedParticle = 0;
+	  nChargedParticleHP = 0;
+	  netP = TVector3(0, 0, 0);
+	  netChargedP = TVector3(0, 0, 0);
+	  
+	  nGenParticle = 0;
+	  nGenParticleHP = 0;
+	  nGenChargedParticle = 0;
+	  nGenChargedParticleHP = 0;
+	  netPGen = TVector3(0, 0, 0);
+	  netChargedPGen = TVector3(0, 0, 0);
+	  
+	} else if (line.find("CHECK: ECM") != std::string::npos) {
 	    std::istringstream iss(line);
 	    std::string dummy;
             iss >> dummy >> dummy >> energy;
@@ -136,7 +147,7 @@ void convert(const char* inputFileName, const char* outputFileName,
 	} else if (line.find("CHECK: TRACKS") != std::string::npos) {
             std::istringstream iss(line);
             std::string dummy;
-            iss >> dummy >> dummy >> nParticleNoCut;
+            iss >> dummy >> dummy >> nParticleNoCut >> dummy >> dummy >> dummy;
             if (verbose) std::cout <<"get "<< nParticleNoCut << " reco particles" << std::endl;
             doParticle=1;
         } else if (line.find("CHECK: GEN") != std::string::npos) {
@@ -162,6 +173,7 @@ void convert(const char* inputFileName, const char* outputFileName,
             {
                 if (verbose) std::cout <<"do particle: " << nParticle << "-th (" << particleNumber << ")" <<std::endl;
                 netP -= TVector3(pxVal, pyVal, pzVal);
+		if (abs(q) > 0.5) {netChargedP -= TVector3(pxVal, pyVal, pzVal);}
 
                 out_pData.px[nParticle] = pxVal;
                 out_pData.py[nParticle] = pyVal;
@@ -201,75 +213,85 @@ void convert(const char* inputFileName, const char* outputFileName,
             }
 
             if (particleNumber==nParticleNoCut)  {
-                out_pData.nParticle       = nParticle;
-                out_eData.nChargedParticle  = nChargedParticle;
-                out_eData.nParticleHP       = nParticleHP;
-                out_eData.nChargedParticleHP= nChargedParticleHP;
-                doParticle=0;
-                if (verbose) std::cout <<"End reading particles, recording " << out_pData.nParticle << " particles." <<std::endl;
+	      out_pData.nParticle       = nParticle;
+	      out_eData.nChargedParticle  = nChargedParticle;
+	      out_eData.nParticleHP       = nParticleHP;
+	      out_eData.nChargedParticleHP= nChargedParticleHP;
+	      doParticle=0;
+	      if (verbose) std::cout <<"End reading particles, recording " << out_pData.nParticle << " particles." <<std::endl;
 
-                out_eData.missP = netP.Mag();
-                out_eData.missPt = netP.Perp();
-                out_eData.missTheta = netP.Theta();
-                out_eData.missPhi = netP.Phi();
+	      out_eData.missP = netP.Mag();
+	      out_eData.missPt = netP.Perp();
+	      out_eData.missTheta = netP.Theta();
+	      out_eData.missPhi = netP.Phi();
 
-                TVector3 thrust             = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL);
-                TVector3 thrustWithMissP    = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL,false,false,NULL,true,out_pData.pwflag);
+	      out_eData.missChargedP = netChargedP.Mag();
+	      out_eData.missChargedPt = netChargedP.Perp();
+	      out_eData.missChargedTheta = netChargedP.Theta();
+	      out_eData.missChargedPhi = netChargedP.Phi();
 
-                out_eData.Thrust        = thrust.Mag();
-                out_eData.TTheta        = thrust.Theta();
-                out_eData.TPhi          = thrust.Phi();
-                out_eData.ThrustWithMissP   = thrustWithMissP.Mag();
-                out_eData.TThetaWithMissP   = thrustWithMissP.Theta();
-                out_eData.TPhiWithMissP     = thrustWithMissP.Phi();
-                if ( do_thrustMissP ) {
-                        setThrustVariables(&out_pData, &out_eData, TVector3(),
-                                TVector3(), TVector3(), TVector3(), TVector3(),
-                                thrustWithMissP);
-                }
+	      TVector3 thrust             = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL);
+	      TVector3 thrustWithMissP    = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL,false,false,NULL,true,out_pData.pwflag);
 
-                Sphericity spher = Sphericity(out_pData.nParticle,
-                                  out_pData.px,
-                                  out_pData.py,
-                                  out_pData.pz,
-                                  out_pData.pwflag,
-                                  false);
-                spher.setTree(&out_eData);
-
-                eventSelection eSelection;
-                eSelection.setEventSelection(&out_pData, &out_eData);
-
-                if (verbose)
+	      out_eData.Thrust        = thrust.Mag();
+	      out_eData.TTheta        = thrust.Theta();
+	      out_eData.TPhi          = thrust.Phi();
+	      out_eData.ThrustWithMissP   = thrustWithMissP.Mag();
+	      out_eData.TThetaWithMissP   = thrustWithMissP.Theta();
+	      out_eData.TPhiWithMissP     = thrustWithMissP.Phi();
+	      if ( do_thrustMissP ) {
+		setThrustVariables(&out_pData, &out_eData, TVector3(),
+				   TVector3(), TVector3(), TVector3(), TVector3(),
+				   thrustWithMissP);
+	      }
+	      
+	      Sphericity spher = Sphericity(out_pData.nParticle,
+					    out_pData.px,
+					    out_pData.py,
+					    out_pData.pz,
+					    out_pData.pwflag,
+					    false);
+	      spher.setTree(&out_eData);
+	      
+	      eventSelection eSelection;
+	      eSelection.setEventSelection(&out_pData, &out_eData);
+	      
+	      if (verbose)
                 {
-                    printf("eSelection.getPassesNeuNch(): %o\n", eSelection.getPassesNeuNch());
-                    printf("eSelection.getPassesSTheta(): %o\n", eSelection.getPassesSTheta());
-                    printf("eSelection.getPassesTotalChgEnergyMin(): %o\n", eSelection.getPassesTotalChgEnergyMin());
-                    printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
-		    printf("out_eData.nParticleHP: %d\n", out_eData.nParticleHP);
-		    printf("out_pData.nParticle: %d\n", out_pData.nParticle);
+		  printf("eSelection.getPassesNeuNch(): %o\n", eSelection.getPassesNeuNch());
+		  printf("eSelection.getPassesSTheta(): %o\n", eSelection.getPassesSTheta());
+		  printf("eSelection.getPassesTotalChgEnergyMin(): %o\n", eSelection.getPassesTotalChgEnergyMin());
+		  printf("out_eData.nChargedParticleHP: %d\n", out_eData.nChargedParticleHP);
+		  printf("out_eData.nParticleHP: %d\n", out_eData.nParticleHP);
+		  printf("out_pData.nParticle: %d\n", out_pData.nParticle);
                 }
-		out_eData.passesTotalChgEnergyMin = eSelection.getPassesTotalChgEnergyMin();
-		out_eData.passesNeuNch = eSelection.getPassesNeuNch();
-		out_eData.passesNTrkMin = eSelection.getPassesNTrkMin();
-		out_eData.passesSTheta = eSelection.getPassesSTheta();
-                out_eData.passesBELLE = eSelection.getPassesNeuNch() && \
-		  eSelection.getPassesSTheta() &&			\
-		  eSelection.getPassesTotalChgEnergyMin() &&		\
-		  eSelection.getPassesNTrkMin();
-		
-		if (verbose) {
-		  std::size_t arraySize = sizeof(out_pData.mass) / sizeof(out_pData.mass[0]);
-		  std::cout << "The particle array contains " << arraySize << " elements." << std::endl;
-		}
-
-                out_eData.passesISR = eSelection.getPassesISR();
-                out_eData.passesWW = eSelection.getPassesWW();
-                // if(!out_eData.passesBELLE || !out_eData.passesISR) continue;
-                out_t->Fill();
-                iEvent ++;
-                if (verbose) std::cout <<"fill"<<std::endl;
+	      out_eData.passesTotalChgEnergyMin = eSelection.getPassesTotalChgEnergyMin();
+	      out_eData.passesNeuNch = eSelection.getPassesNeuNch();
+	      out_eData.passesNTrkMin = eSelection.getPassesNTrkMin();
+	      out_eData.passesSTheta = eSelection.getPassesSTheta();
+	      out_eData.passesBELLE = eSelection.getPassesNeuNch() &&	\
+		eSelection.getPassesSTheta() &&				\
+		eSelection.getPassesTotalChgEnergyMin() &&		\
+		eSelection.getPassesNTrkMin();
+	      
+	      if (verbose) {
+		std::size_t arraySize = sizeof(out_pData.mass) / sizeof(out_pData.mass[0]);
+		std::cout << "The particle array contains " << arraySize << " elements." << std::endl;
+	      }
+	      
+	      out_eData.passesISR = eSelection.getPassesISR();
+	      out_eData.passesWW = eSelection.getPassesWW();
+	      out_eData.Mvis = eSelection.getMvis();
+	      out_eData.sPrime = eSelection.getsPrime();
+	      out_eData.d2 = eSelection.getd2();
+	      out_eData.cW = eSelection.getcW();
+	      
+	      // if(!out_eData.passesBELLE || !out_eData.passesISR) continue;
+	      out_t->Fill();
+	      iEvent ++;
+	      if (verbose) std::cout <<"fill"<<std::endl;
             }
-	} else if (!line.empty() && doGenParticle==1) {
+	} else if (!line.empty() && doGenParticle==1) {	    
             std::istringstream iss(line);
             int particleNumber;
             float particleID, pxVal, pyVal, pzVal, eVal, mVal, status;
@@ -277,7 +299,7 @@ void convert(const char* inputFileName, const char* outputFileName,
 
             TLorentzVector temp(pxVal, pyVal, pzVal, eVal);
 
-            ///// veto the beam background and other backgrounds /////
+            ///// veto the beam background and other backgrounds ///// 
             bool pass(1);
             pass = (status == 1); // final state particle
             ///// veto the beam background and other backgrounds /////
@@ -290,6 +312,8 @@ void convert(const char* inputFileName, const char* outputFileName,
 		q = particle->Charge() / 3.0;
                 if (verbose) std::cout <<"do particle: " << nGenParticle << "-th (" << particleNumber << ")" <<std::endl;
                 netPGen -= TVector3(pxVal, pyVal, pzVal);
+
+		if (abs(q) > 0.5) {netChargedPGen -= TVector3(pxVal, pyVal, pzVal);}
 
                 out_pData_gen.px[nGenParticle] = pxVal;
                 out_pData_gen.py[nGenParticle] = pyVal;
@@ -332,6 +356,11 @@ void convert(const char* inputFileName, const char* outputFileName,
                 out_eData_gen.missPt = netPGen.Perp();
                 out_eData_gen.missTheta = netPGen.Theta();
                 out_eData_gen.missPhi = netPGen.Phi();
+
+		out_eData_gen.missChargedP = netChargedPGen.Mag();
+		out_eData_gen.missChargedPt = netChargedPGen.Perp();
+		out_eData_gen.missChargedTheta = netChargedPGen.Theta();
+		out_eData_gen.missChargedPhi = netChargedPGen.Phi();
 
                 TVector3 thrust             = getThrust(out_pData_gen.nParticle, out_pData_gen.px, out_pData_gen.py, out_pData_gen.pz, THRUST::OPTIMAL);
                 TVector3 thrustWithMissP    = getThrust(out_pData_gen.nParticle, out_pData_gen.px, out_pData_gen.py, out_pData_gen.pz, THRUST::OPTIMAL,false,false,NULL,true,out_pData_gen.pwflag);

@@ -65,6 +65,7 @@ void convert(const char* inputFileName, const char* outputFileName,
     int nParticleHP = 0; int nChargedParticle = 0; int nChargedParticleHP = 0;
     float energy = 0;
     TVector3 netP(0, 0, 0);
+    TVector3 netChargedP(0, 0, 0);
     while (std::getline(infile, line)) {
         if (line.find("HAPPY CHECK: EVENT") != std::string::npos) {
             // Locate and extract the part after "HAPPY CHECK: EVENT   :"
@@ -98,6 +99,7 @@ void convert(const char* inputFileName, const char* outputFileName,
             nChargedParticle = 0;
             nChargedParticleHP = 0;
             netP = TVector3(0, 0, 0);
+	    netChargedP = TVector3(0, 0, 0);
 
         } else if (line.find("CHECK: ECM") != std::string::npos) {
 	    std::istringstream iss(line);
@@ -128,6 +130,7 @@ void convert(const char* inputFileName, const char* outputFileName,
             {
                 if (verbose) std::cout <<"do particle: " << nParticle << "-th (" << particleNumber << ")" <<std::endl;
                 netP -= TVector3(pxVal, pyVal, pzVal);
+		if (abs(q) > 0.5) {netChargedP -= TVector3(pxVal, pyVal, pzVal);}
 
                 out_pData.px[nParticle] = pxVal;
                 out_pData.py[nParticle] = pyVal;
@@ -178,6 +181,11 @@ void convert(const char* inputFileName, const char* outputFileName,
                 out_eData.missPt = netP.Perp();
                 out_eData.missTheta = netP.Theta();
                 out_eData.missPhi = netP.Phi();
+
+		out_eData.missChargedP = netChargedP.Mag();
+		out_eData.missChargedPt = netChargedP.Perp();
+		out_eData.missChargedTheta = netChargedP.Theta();
+		out_eData.missChargedPhi = netChargedP.Phi();
 
                 TVector3 thrust             = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL);
                 TVector3 thrustWithMissP    = getThrust(out_pData.nParticle, out_pData.px, out_pData.py, out_pData.pz, THRUST::OPTIMAL,false,false,NULL,true,out_pData.pwflag);
@@ -238,6 +246,10 @@ void convert(const char* inputFileName, const char* outputFileName,
 		  eSelection.getPassesNTrkMin();
                 out_eData.passesISR = eSelection.getPassesISR();
                 out_eData.passesWW = eSelection.getPassesWW();
+		out_eData.Mvis = eSelection.getMvis();
+		out_eData.sPrime = eSelection.getsPrime();
+		out_eData.d2 = eSelection.getd2();
+		out_eData.cW = eSelection.getcW();
                 // if(!out_eData.passesBELLE || !out_eData.passesISR) continue;
 
                 out_t->Fill();

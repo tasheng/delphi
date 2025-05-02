@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 import os
 import glob as glob
+import sys
 
 os.system('mkdir -p ./dump/log/')
 os.system('mkdir -p ./dump/err/')
 os.system('mkdir -p ./dump/out/')
 os.system('g++ `root-config --glibs --cflags` -I TPCNtupleFormat/ `$FASTJETDIR/bin/fastjet-config --cxxflags --libs --plugins` -o bin/convert.exe convert.C')
+
+#sys.exit()
+
 
 PDLINPUT_txt = '''
 *
@@ -15,8 +19,10 @@ FILE = {}
 *
 '''
 
-nickname = 'Y13710'
-#nickname = 'R07930'
+#nickname = 'Y13709' ## 94c
+#nickname = 'Y13710' ## 94c
+#nickname = 'Y10177' ## 98d2
+nickname = 'R05115' ## 98e1
 
 os.chdir('dump')
 for al in glob.glob(f'/eos/opendata/delphi/collision-data/{nickname}/{nickname}.*.al'):
@@ -30,6 +36,6 @@ for al in glob.glob(f'/eos/opendata/delphi/collision-data/{nickname}/{nickname}.
     os.system('mv dump.log log/dump.{}.log'.format(basename))
     os.system('mv dump.err err/dump.{}.err'.format(basename))
     os.system('../bin/convert.exe log/dump.{}.log out/{}.root'.format(basename,basename))
-    os.system(f'mv out/{basename}.root /eos/user/z/zhangj/DELPHI/collision_data/1994/')
+    os.system(f'mv out/{basename}.root /eos/user/z/zhangj/DELPHI/collision_data/1998_v2/v98e1/')
     os.system(f'rm log/dump.{basename}.log')
     os.system(f'rm err/dump.{basename}.err')

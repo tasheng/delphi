@@ -88,16 +88,16 @@ C Skeleton Analysis Program  Version 2.0/01
 *
 *--   Set the default track selection cuts
 *
-*--   Old SKELANA selection:
+*--   Feb 2025 for DELPHI re-analysis at Z pole:
 *
       TRKMOM(1) = 0.1
       TRKLEN(1) = 30.
-      TRKRPH(1) = 4.
+      TRKRPH(1) = 5.
       TRKZET(1) = 10.
       TRCCOS(1) = 0.94
       TRKMAX(1) = 1.E+10
       TRKERR(1) = 1.
-      TRNCOS(1) = 1.
+      TRNCOS(1) = 0.98
       EHPC(1)   = 1.E-10
       EFEMC(1)  = 1.E-10
       EHAC(1)   = 1.E-10
@@ -128,25 +128,25 @@ C Skeleton Analysis Program  Version 2.0/01
       IHADRJ(2) = 0
       ISTOEL(2) = 0
 *
-*--   Feb 2025 for DELPHI re-analysis at Z pole
+*--   Feb 2025 for DELPHI re-analysis for 98 data 
 *
       TRKMOM(3) = 0.1
       TRKLEN(3) = 30.
-      TRKRPH(3) = 5.
-      TRKZET(3) = 10.
+      TRKRPH(3) = 4.
+      TRKZET(3) = 4.
       TRCCOS(3) = 0.94
-      TRKMAX(3) = 1.E+10
+      TRKMAX(3) = 1.5
       TRKERR(3) = 1.
       TRNCOS(3) = 0.98
-      EHPC(3)   = 1.E-10
-      EFEMC(3)  = 1.E-10
-      EHAC(3)   = 1.E-10
-      ESTIC(3)  = 1.E-10
-      RECCAL(3) = 1.E+10
-      VDONLY(3) = 0
-      IDVDWZ(3) = 0
-      IHADRJ(3) = 0
-      ISTOEL(3) = 0
+      EHPC(3)   = 0.3
+      EFEMC(3)  = 0.4
+      EHAC(3)   = 0.
+      ESTIC(3)  = 0.3
+      RECCAL(3) = 5.0
+      VDONLY(3) = 1
+      IDVDWZ(3) = 1
+      IHADRJ(3) = 2
+      ISTOEL(3) = 1
 *
 *     Print the chosen flag values and track selection cuts:
 *
