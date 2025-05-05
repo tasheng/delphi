@@ -79,7 +79,7 @@ void convert(const char* inputFileName, const char* outputFileName,
                 iss >> out_pData.RunNo >> colon >> out_pData.EventNo;
                 if (verbose) std::cout << "Run: " << out_pData.RunNo << ", Colon: " << colon << ", Event: " << out_pData.EventNo << std::endl;
             }
-            out_pData.year = 1998; // temp //
+            out_pData.year = 1997; // temp //
             // out_pData.subDir = -999;
             // out_pData.process = -999;
             out_pData.source = 70; // temp //
