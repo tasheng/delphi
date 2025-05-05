@@ -42,13 +42,13 @@ FILE = {}
 #]
 #print(files)
 
-tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98d2/kora/'
-files = [
-    f
-    for i in range(83, 88)
-    for f in glob.glob(f"/eos/opendata/delphi/collision-data/Y13741/Y13741.{i}.al")
-]
-print(files)
+#tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98d2/kora/'
+#files = [
+#    f
+#    for i in range(83, 88)
+#    for f in glob.glob(f"/eos/opendata/delphi/collision-data/Y13741/Y13741.{i}.al")
+#]
+#print(files)
 
 #tin = '/eos/opendata/delphi/simulated-data/lyon/kk2f4144/v98e/188.6/*xsdst'
 #tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/kk2f4144_qqar/'
@@ -58,18 +58,17 @@ print(files)
 #tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/kk2f4143_qq/'
 #files = glob.glob(tin)
 
-#tin = '/eos/opendata/delphi/simulated-data/ral/kk2f4144/v98e/188.6/*xsdst'
-#tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/kk2f4144_ttsp/'
-#files = glob.glob(tin)
+tin = '/eos/opendata/delphi/simulated-data/ral/kk2f4144/v98e/188.6/*xsdst'
+tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/kk2f4144_ttsp/'
+files = glob.glob(tin)
 
 #tin = '/eos/opendata/delphi/simulated-data/cern/wphact24/v98e/188.6/wphact24_4q_188.6_80.4_2054*xsdst'
 #tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/wphact24_4q/'
 #files = glob.glob(tin)
 
-#tin = '/eos/opendata/delphi/simulated-data/cern/wphact24/v98e/188.6/wphact24_cc_188.6_80.4_2009*xsdst'
+#tin = '/eos/opendata/delphi/simulated-data/cern/wphact24/v98e/188.6/wphact24_cc_188.6_80.4_*.xsdst'
 #tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/wphact24_cc/'
 #files = glob.glob(tin)
-
 
 #tin = '/eos/opendata/delphi/simulated-data/cern/wphact21/v98e/188.6/wphact21_nc4f_188.6_80.4_21*'
 #tout = '/eos/user/z/zhangj/DELPHI/simulation/1998_v2/v98e1/wphact21_nc/'

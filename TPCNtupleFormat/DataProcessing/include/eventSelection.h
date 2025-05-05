@@ -499,7 +499,6 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
   passesMissP = false;
 
   passesISR = false;
-  passesISR2 = false;
   passesWW = false;
   passesD2 = false;
   passesCW = false;
@@ -559,7 +558,6 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
   if (particles.size()<=1)
   {
     passesISR = 0;
-    passesISR2 = 0;
     out_sPrime= -999;
     out_mvis  = -999;
     return;
@@ -582,7 +580,6 @@ void eventSelection::setEventSelection(particleData* inPart, eventData* inData,
 
   //cuts from http://cds.cern.ch/record/690637/files/ep-2003-084.pdf, page2, middle paragraph (before d^2 equation
   passesISR = mass/inPart->Energy > .7 || sPrime/(inPart->Energy*inPart->Energy) > .81;
-  passesISR2 = sPrime > 110;
   out_sPrime= sPrime;
   out_mvis  = mass;
 
