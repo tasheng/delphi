@@ -20,8 +20,8 @@ for ending in .f .F ; do
     fi
 done
 
-# link
-$FCOMP $LDFLAGS *.o -o $pgm.exe $ADDLIB $DELLIBS $CERNLIBS
+
+$FCOMP $LDFLAGS *.o -o $pgm.exe $ADDLIB $DELLIBS ${CERNLIBS// -lnsl/}
 
 # execute
 ./$pgm.exe 1>$pgm.log 2>$pgm.err

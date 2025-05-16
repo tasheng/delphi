@@ -22,23 +22,26 @@ FILE = {}
 #nickname = 'Y13709' ## 94c
 #nickname = 'Y13710' ## 94c
 #nickname = 'Y10177' ## 98d2
-# nickname = 'R05115' ## 98e1
-nickname = 'R07057' ## 97g1
-yeartype = 'v97g1'
+nickname = 'R05115' ## 98e1
+yeartype = 'v98e1'
+# nickname = 'R07057' ## 97g1
+# yeartype = 'v97g1'
 
 os.chdir('dump')
 for al in glob.glob(f'/eos/opendata/delphi/collision-data/{nickname}/{nickname}.*.al'):
     f = open('PDLINPUT', 'w')
     f.write(PDLINPUT_txt.format(al))
     f.close()
+
     os.system('cat PDLINPUT')
     os.system('bash dump.sh')
     os.system('echo Recorded `grep -c HAPPY dump.log` events!')
     basename=os.path.basename(al.strip('.al'))
     os.system('mv dump.log log/dump.{}.log'.format(basename))
     os.system('mv dump.err err/dump.{}.err'.format(basename))
+    print('../bin/convert.exe log/dump.{}.log out/{}.root'.format(basename,basename))
     os.system('../bin/convert.exe log/dump.{}.log out/{}.root'.format(basename,basename))
-    top = '/data/DELPHI/collision_data/1997/{yeartype}/'
+    top = f'/data/DELPHI/collision_data/1997/{yeartype}/'
     os.system(f'mkdir -p {top}')
     os.system(f'mv out/{basename}.root {top}')
     os.system(f'rm log/dump.{basename}.log')

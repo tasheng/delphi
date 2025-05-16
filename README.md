@@ -22,3 +22,10 @@ A maximum of 10 events is dumped.
 
 ## Bugs
 The code may need some cleanup.
+
+
+# Running on svmit03
+setup a CMSSW area for math libraries
+
+$ cmsrel CMSSW_13_2_6_patch2
+$ cd CMSSW_13_2_6_patch2/src; cmsenv
