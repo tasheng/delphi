@@ -24,7 +24,7 @@ done
 $FCOMP $LDFLAGS *.o -o $pgm.exe $ADDLIB $DELLIBS ${CERNLIBS// -lnsl/}
 
 # execute
-./$pgm.exe 1>$pgm.log 2>$pgm.err
+./$pgm.exe 1>$pgm.$1.log 2>$pgm.$1.err
 
 # cleanup
 #rm -f *.f *.c *.o

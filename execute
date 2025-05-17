@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import shutil
 import glob
 import sys
 import subprocess
@@ -31,9 +32,9 @@ fatmen_to_label = {
     # "xsdst96_e161_g2": "R07945",
     # "xsdst96_e172_g2": "R07949",
     # "xs_kk2f4143qq_e182.7_l97_1l_g1" : "lyon/kk2f4143/v97g/182.7/kk2f4143_qq",
-    "xs_kk2f4144qqar_e182.7_l97_1l_g1" : "lyon/kk2f4144/v97g/182.7/kk2f4144_qqar",
-    "xs_kk2f4145qqpybe321_e182.7_c97_1l_g1" : "cern/kk2f4145/v97g/182.7/kk2f4145_qqpybe321",
-    "xs_kk2f4146qqardcy_e182.7_c97_1l_g1" : "cern/kk2f4146/v97g/182.7/kk2f4146_qqardcy",
+    # "xs_kk2f4144qqar_e182.7_l97_1l_g1" : "lyon/kk2f4144/v97g/182.7/kk2f4144_qqar",
+    # "xs_kk2f4145qqpybe321_e182.7_c97_1l_g1" : "cern/kk2f4145/v97g/182.7/kk2f4145_qqpybe321",
+    # "xs_kk2f4146qqardcy_e182.7_c97_1l_g1" : "cern/kk2f4146/v97g/182.7/kk2f4146_qqardcy",
     "xs_wphact24cc_e182.7_m80.4_c97_1l_g1" : "cern/wphact24/v97g/182.7/wphact24_cc",
     "xs_wphact22ccbe32i_e182.7_m80.4_c97_1l_g1" : "cern/wphact22/v97g/182.7/wphact22_ccbe32i",
 }
@@ -50,25 +51,26 @@ def process_al_file(al, nickname, yeartype):
     tmp_dir = f'tmp_{basename}'
     os.makedirs(tmp_dir, exist_ok=True)
     # subprocess.run(['cp', '-r', r'dump/*', tmp_dir], check=True)
-    os.system(f'cp -r dump/* {tmp_dir}')
+    os.system(f'cp -r dump{suffix}/* {tmp_dir}')
     os.chdir(tmp_dir)
     try:
         with open('PDLINPUT', 'w') as f:
             f.write(PDLINPUT_txt.format(al))
         subprocess.run(['cat', 'PDLINPUT'], check=True)
-        subprocess.run(['bash', './dump.sh'], check=True)
-        grep_output = subprocess.run(['grep', '-c', 'HAPPY', 'dump.log'], capture_output=True, text=True, check=True)
+        subprocess.run(['bash', './dump.sh', f'{basename}'], check=True)
+        grep_output = subprocess.run(['grep', '-c', 'HAPPY', f'dump.{basename}.log'], capture_output=True, text=True, check=True)
         print(f"Recorded {grep_output.stdout.strip()} events in {basename}!")
         os.makedirs('../log', exist_ok=True)
         os.makedirs('../err', exist_ok=True)
-        os.rename('dump.log', f'../log/dump.{basename}.log')
-        os.rename('dump.err', f'../err/dump.{basename}.err')
+        os.rename(f'dump.{basename}.log', f'../log/dump.{basename}.log')
+        os.rename(f'dump.{basename}.err', f'../err/dump.{basename}.err')
         subprocess.run([f'../bin/convert{suffix}.exe', f'../log/dump.{basename}.log', f'../out/{basename}.root'], check=True)
         year = infer_year(yeartype)
         print(f'year: {year}')
         out_top = "simulation" if suffix == "MC" else "collision"
         if year:
-            top = f'/eos/user/t/tsheng/DELPHI/{out_top}_data/{year}/{yeartype}/'
+            # top = f'/eos/user/t/tsheng/DELPHI/{out_top}_data/{year}/{yeartype}/'
+            top = f'/data/DELPHI/{out_top}_data/{year}/{yeartype}/'
             os.makedirs(top, exist_ok=True)
             os.makedirs('../out', exist_ok=True)
             subprocess.run(['mv', f'../out/{basename}.root', top], check=True)
@@ -83,7 +85,7 @@ def process_al_file(al, nickname, yeartype):
     finally:
         os.chdir('..')
         # Optionally remove the temporary directory
-        # shutil.rmtree(tmp_dir)
+        shutil.rmtree(tmp_dir)
 
 if __name__ == "__main__":
 
